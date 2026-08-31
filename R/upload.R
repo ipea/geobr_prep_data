@@ -27,11 +27,10 @@ upload_arquivos <- function(files, versao_dados) {
   )
   
   
-  # # copy to local disc
+  # # copy files to local disc
   # dest_path <- "//.../geobr/data_v2.0.0"
-  # 
-  # # copy files to folder "bbb"
-  # file.copy(
+  #
+  # a <- file.copy(
   #   from = files,
   #   to = file.path(dest_path, basename(files)),
   #   overwrite = TRUE

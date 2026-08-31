@@ -19,27 +19,6 @@
 # Informação do Sistema de Referência: SIRGAS 2000
 # Observações: 2014 a 2020 sem shape. 2021 a 2024 com shape.
 
-### Libraries (use any library as necessary) -----------------------------------
-
-# library(RCurl)
-# library(stringr)
-# library(sf)
-# library(janitor)
-# library(dplyr)
-# library(readr)
-# library(data.table)
-# library(magrittr)
-# library(devtools)
-# library(lwgeom)
-# library(stringi)
-# library(targets)
-# library(tidyverse)
-# library(mirai)
-# library(rvest)
-# library(arrow)
-# library(geoarrow)
-# source("./R/support_harmonize_geobr.R")
-# source("./R/support_fun.R")
 
 # Download the data  -----------------------------------------------------------
 download_amazonialegal <- function(year){ #
