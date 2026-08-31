@@ -23,6 +23,7 @@ download_urbanarea <- function(year) {
     "2005" = paste0(base, "2005/areas_urbanizadas_do_Brasil_2005_shapes.zip"),
     "2015" = paste0(base, "2015/Shape/AreasUrbanizadasDoBrasil_2015.zip"),
     "2019" = paste0(base, "2019/Shapefile/AreasUrbanizadas2019_Brasil.zip"),
+    "2022" = paste0(base, "2022/Shapefile/AreasUrbanizadas2022_Brasil.zip"),
     stop(paste("Ano", year, "não suportado para urban_area"))
   )
 
@@ -121,7 +122,7 @@ clean_urbanarea <- function(urbanarea_raw, urbanconcentrations_clean) {
       )
   }
 
-  if (yyyy == 2019) {
+  if (yyyy >= 2019) {
     temp_sf <- urbanarea_raw |>
       dplyr::select(
         type         = tipo,
@@ -134,7 +135,7 @@ clean_urbanarea <- function(urbanarea_raw, urbanconcentrations_clean) {
   ## 2. Add state/region info --------------------------------------------------
 
   # 2019 nao vem com code_muni/name_muni: deriva via centroide x municipio
-  if (yyyy == 2019) {
+  if (yyyy >= 2019) {
 
     # filtra municipality_clean (vetor de paths) ao ano relevante
     muni_files <- urbanconcentrations_clean[
@@ -153,7 +154,7 @@ clean_urbanarea <- function(urbanarea_raw, urbanconcentrations_clean) {
       dplyr::select(tempid, code_muni, name_muni) |>
       sf::st_drop_geometry()
 
-    temp_sf <- left_join(temp_sf,temp_centroids) |>
+    temp_sf <- dplyr::left_join(x = temp_sf, y = temp_centroids) |>
       dplyr::select(-tempid)
 
   }

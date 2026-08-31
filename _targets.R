@@ -503,7 +503,7 @@ list(
   
   # year input
   tar_target(name = years_urbanarea,
-             command = c(2005, 2015, 2019)),
+             command = c(2005, 2015, 2019, 2022)),
 
   # download
   tar_target(name = urbanarea_raw,
