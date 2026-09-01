@@ -1080,6 +1080,16 @@ dicionario_health_region <- list(
   code_state = c("cod_uf", "cd_uf", "codigo_uf", "co_uf")
 )
 
+
+
+dicionario_weighting_area <- list(
+  code_weighting = c("cd_apond"),
+  name_weighting = c("nm_apond"),
+  code_state = c("cd_uf"),
+  code_muni = "cd_mun",
+  name_muni = "nm_mun"
+)
+
 # Original FUNAI columns:
 # gid, terrai_cod, terrai_nom, etnia_nome, municipio_, uf_sigla,
 # superficie, fase_ti, modalidade, reestudo_t, cr, faixa_fron,

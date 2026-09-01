@@ -18,16 +18,50 @@
 
 download_weightarea <- function(year) { # year = 2010
   
-  file_url <- "https://github.com/ipeaGIT/geobr_prep_data/releases/download/legacy/weightingarea_ibge_2010.parquet"
+  if (year == 2010) {
+
+    # using legacy data for 2010
+    file_url <- "https://github.com/ipeaGIT/geobr_prep_data/releases/download/legacy/weightingarea_ibge_2010.parquet"
+
+    file <- download_file_geobr(file_url)
+    
+    weightarea_raw <- arrow::open_dataset(file) |> sf::st_as_sf()
+    
+    weightarea_raw <- weightarea_raw |>
+      dplyr::rename(geometry = geom) |>
+      sf::st_set_geometry("geometry")
+  }
+
+  if (year == 2022) {
+
+    ftp_link <- "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/malha_de_areas_de_ponderacao/censo_demografico_2022/APONDs2022_Geometrias/"
+
+    # list all files in url
+    all_files <- list_folders(ftp_link)
+
+    # keep only geopackage file of Brazil
+    br_file <- all_files[grep("Brasil.gpkg", all_files)]
+
+    target_url <- paste0(ftp_link, br_file)
+
+  tmp_dir <- paste0(tempdir(), "/weightingarea_raw/", year)
+  dir.create(tmp_dir, recursive = TRUE, showWarnings = FALSE)
+
+  message(paste("Baixando area de ponderacao", year))
   
-  file <- download_file_geobr(file_url)
+  file_raw <- download_file_geobr(
+    file_url = target_url,
+    dest_dir = tmp_dir
+  )
+
+  weightarea_raw <- sf::st_read(file_raw)
   
-  weightarea_raw <- arrow::open_dataset(file) |> sf::st_as_sf()
-  
+  }
+
+
   weightarea_raw <- weightarea_raw |>
-    dplyr::rename(geometry = geom) |>
-    sf::st_set_geometry("geometry")
-  
+    janitor::clean_names()
+
   weightarea_raw$year <- year
   
   return(weightarea_raw)
@@ -226,9 +260,14 @@ download_weightarea <- function(year) { # year = 2010
 # censustract_clean <- tar_read(censustract_2010_clean)
 clean_weightarea <- function(weightarea_raw) {
 
+  ## 0. Create folder to save clean data --------------------------------------
   yyyy <- weightarea_raw$year[1]
   dir_clean <- paste0("./data/weighting_area/", yyyy)
   dir.create(dir_clean, recursive = TRUE, showWarnings = FALSE)
+
+  ## 2. standardize colnames  ---------------------------------------------------
+  weighting_areas <- rename_cols_geobr(weightarea_raw, dicionario_weighting_area) 
+  
 
   # # drop simplified geometries
   # censustract_clean <- censustract_clean[grepl(2010, censustract_clean)]
@@ -256,11 +295,11 @@ clean_weightarea <- function(weightarea_raw) {
   # 
   # weighting_areas <- left_join(weighting_areas, temp)
   
-  # get code cols to numeric
-  weighting_areas <- code_cols_to_numeric(weightarea_raw)    
+  #
+
   
   
-  ## 4.  Harmonize  -----------------
+  ## 3. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
       temp_sf        = weighting_areas,
@@ -281,13 +320,20 @@ clean_weightarea <- function(weightarea_raw) {
 
   # Column order
   temp_sf <- temp_sf |>
-      dplyr::select(code_weighting, 
-                    code_muni, name_muni,
-                    code_state, abbrev_state, name_state,
-                    code_region, name_region,
-                    year, geometry
-                    )
+      dplyr::select(
+        dplyr::any_of(c(
+          'code_weighting', 'name_weighting', 
+          'code_muni', 'name_muni',
+          'code_state', 'abbrev_state', 'name_state',
+          'code_region', 'name_region',
+          'year', 'geometry'
+          )
+        ))
   
+  # get code cols to numeric
+  temp_sf <- code_cols_to_numeric(temp_sf)    
+
+
   # sort by key columns
   temp_sf <- temp_sf |> 
     dplyr::arrange(code_state, code_muni, code_weighting)

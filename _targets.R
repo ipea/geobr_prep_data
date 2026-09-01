@@ -454,7 +454,7 @@ list(
 
   # year input
   tar_target(name = years_weightarea,
-             command = c(2010)),
+             command = c(2010, 2022)),
   
   # download
   tar_target(name = weightarea_raw,
